@@ -6,13 +6,13 @@ public:
 	int offset;
 	int scope;
 	int available;
-	Entry();
-	~Entry();
+	Entry(){}
+	~Entry(){}
 };
 class SymbolTable{
 public:
-	SymbolTable();
-	~SymbolTable();
+	SymbolTable(){}
+	~SymbolTable(){}
 	Entry entries[MAX_TABLE_SIZE];
 	void init();
 	int lookUp(std::string name);

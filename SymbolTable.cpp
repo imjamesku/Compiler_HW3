@@ -1,10 +1,5 @@
-#include "symbolTable.h"
+#include "SymbolTable.h"
 #include <string>
-Entry::Entry(){
-	offset = 0;
-	scope = 0;
-	available = 0;
-}
 void SymbolTable::init(){
 	for(int i=0; i<MAX_TABLE_SIZE; ++i){
 		entries[i].available = 1;
@@ -19,7 +14,7 @@ int SymbolTable::install(std::string name){
 }
 int SymbolTable::lookUp(std::string name){
 	for(int i=0; i<MAX_TABLE_SIZE; ++i){
-		if(entries[i].name == name)
+		if(entries[i].name == name && entries[i].available == 0)
 			return i;
 	}
 }
