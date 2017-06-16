@@ -1494,17 +1494,18 @@ YY_RULE_SETUP
 		printf("#id:%s\n", yytext);
 	strcpy(line_buf_ptr, yytext);
 	line_buf_ptr += strlen(yytext);
+	strcpy(yylval.idName, yytext);
 	return ID;
 }
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 392 "scanner.l"
+#line 393 "scanner.l"
 
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 393 "scanner.l"
+#line 394 "scanner.l"
 {
 	fprintf(stderr, "Error at line %d: %s\n", num_lines, yytext);
 	exit(1);
@@ -1512,10 +1513,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 397 "scanner.l"
+#line 398 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 1519 "lex.yy.cpp"
+#line 1520 "lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 case YY_STATE_EOF(string):
@@ -2517,7 +2518,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 397 "scanner.l"
+#line 398 "scanner.l"
 
 
 /*int main(int argc, char* argv[]){

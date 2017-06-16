@@ -1,12 +1,13 @@
 %union{
 	int intVal;
+	char idName[32];
 }
 %token <intVal> INTEGER
 %token STRING DOUBLE SCI_NOTATION CHAR
 %token TYPE TYPE_VOID
 %token CONSTANT
 %token KEY_FOR KEY_WHILE KEY_DO KEY_IF KEY_ELSE KEY_SWITCH KEY_RETURN KEY_BREAK KEY_CONTINUE KEY_CONST KEY_STRUCT KEY_CASE KEY_DEFAULT
-%token ID
+%token <idName> ID
 %token OP_INCREMENT OP_DECREMENT OP_CMP OP_LAND OP_LOR
 
 %left OP_LOR
@@ -36,6 +37,9 @@
 	extern char* yytext;
 	int functionDefinitionExists = 0;
 	int error_occurred = 0;
+	int stack_counter = 0;
+	int scope = 0;
+	FILE* f_asm;
 %}
 
 %%
@@ -92,7 +96,11 @@ allKindsOfStatements: statement ';'
 	| switch_statement
 	;
 
-statement: ID '=' expression
+statement: ID '=' expression	{int index = symbolTable.lookUp($1);
+				int offset = symbolTable.entries[index].offset;
+				fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+				fprintf(f_asm, "swi $r0, [$sp+%d]", (offset)*4);
+				}
 	| ID arr_indices '=' expression
 	| ID '(' expressions  ')'
 	| ID '(' ')'
@@ -131,8 +139,10 @@ identifiers: identifier
 	;
 
 identifier:
-	ID
-	|ID '=' expression
+	ID {int index = symbolTable.install($1, stack_counter, scope); stack_counter++;}
+	|ID '=' expression {	//fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+			//	stack_counter--;
+				symbolTable.install($1, stack_counter-1, scope); stack_counter++; }
 	|ID arr_brackets
 	|ID arr_brackets '=' '{' expressions '}'
 	|ID arr_brackets '=' '{' '}'
@@ -157,18 +167,62 @@ expression: expression OP_LOR expression
 	|expression OP_LAND expression
 	|expression OP_CMP expression
 	|'!' expression
-	|expression '+' expression
-	|expression '-' expression
-	|expression '*' expression
-	|expression '/' expression
-	|expression '%' expression
+	|expression '+' expression 	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "add $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+	|expression '-' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "sub $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+	
+	|expression '*' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+
+	|expression '/' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+
+	|expression '%' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+
 	|ID OP_INCREMENT
 	|ID OP_DECREMENT
-	|INTEGER {}
+	|INTEGER	{fprintf(f_asm, "movi $r0, %d\n", $1);
+			fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+			stack_counter++;}
 	|DOUBLE
 	|SCI_NOTATION
 	|CHAR
-	|ID
+	|ID	{int index = symbolTable.lookUp($1);
+		fprintf(f_asm, "lwi $r0, [$sp+%d]", symbolTable.entries[index].offset*4);
+		fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+		stack_counter++;}
 	|STRING
 	|CONSTANT
 	|'(' expression ')'
@@ -190,6 +244,7 @@ void yyerror(const char* msg){
 }
 
 int main(void){
+	//f_asm = fopen("");
 	yyparse();
 	if(functionDefinitionExists == 0){
 		line_buf[0] = '\0';

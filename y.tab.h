@@ -35,6 +35,7 @@
 #define YYSTYPE_IS_DECLARED 1
 typedef union{
 	int intVal;
+	char idName[32];
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 extern YYSTYPE yylval;

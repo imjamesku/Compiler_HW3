@@ -387,6 +387,7 @@ extern YYSTYPE yyval;
 		printf("#id:%s\n", yytext);
 	strcpy(line_buf_ptr, yytext);
 	line_buf_ptr += strlen(yytext);
+	strcpy(yylval.idName, yytext);
 	return ID;
 }
 #error

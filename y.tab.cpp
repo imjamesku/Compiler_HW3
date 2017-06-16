@@ -25,9 +25,10 @@ static const char yysccsid[] = "@(#)yaccpar	1.9 (Berkeley) 02/21/93";
 #define YYSTYPE_IS_DECLARED 1
 typedef union{
 	int intVal;
+	char idName[32];
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
-#line 24 "hw2.y"
+#line 25 "hw2.y"
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string>
@@ -43,7 +44,10 @@ typedef union{
 	extern char* yytext;
 	int functionDefinitionExists = 0;
 	int error_occurred = 0;
-#line 46 "y.tab.cpp"
+	int stack_counter = 0;
+	int scope = 0;
+	FILE* f_asm;
+#line 50 "y.tab.cpp"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -482,7 +486,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 182 "hw2.y"
+#line 236 "hw2.y"
 
 void yyerror(const char* msg){
 	fprintf( stderr, "*** Error at line %d: %s\n", num_lines, line_buf );
@@ -494,6 +498,7 @@ void yyerror(const char* msg){
 }
 
 int main(void){
+	//f_asm = fopen("");
 	yyparse();
 	if(functionDefinitionExists == 0){
 		line_buf[0] = '\0';
@@ -505,7 +510,7 @@ int main(void){
 		printf("No syntax error\n");
 	return 0;
 }
-#line 507 "y.tab.cpp"
+#line 512 "y.tab.cpp"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -708,14 +713,96 @@ yyreduce:
     switch (yyn)
     {
 case 2:
-#line 44 "hw2.y"
+#line 48 "hw2.y"
 	{functionDefinitionExists = 1;}
 break;
-case 84:
-#line 167 "hw2.y"
-	{}
+case 35:
+#line 99 "hw2.y"
+	{int index = symbolTable.lookUp(yystack.l_mark[-2].idName);
+				int offset = symbolTable.entries[index].offset;
+				fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+				fprintf(f_asm, "swi $r0, [$sp+%d]", (offset)*4);
+				}
 break;
-#line 717 "y.tab.cpp"
+case 61:
+#line 142 "hw2.y"
+	{int index = symbolTable.install(yystack.l_mark[0].idName, stack_counter, scope); stack_counter++;}
+break;
+case 62:
+#line 143 "hw2.y"
+	{	/*fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);*/
+			/*	stack_counter--;*/
+				symbolTable.install(yystack.l_mark[-2].idName, stack_counter-1, scope); stack_counter++; }
+break;
+case 77:
+#line 170 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "add $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+break;
+case 78:
+#line 178 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "sub $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+break;
+case 79:
+#line 187 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+break;
+case 80:
+#line 196 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+break;
+case 81:
+#line 205 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					stack_counter--;
+					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1");
+					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					stack_counter++;
+					}
+break;
+case 84:
+#line 216 "hw2.y"
+	{fprintf(f_asm, "movi $r0, %d\n", yystack.l_mark[0].intVal);
+			fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+			stack_counter++;}
+break;
+case 88:
+#line 222 "hw2.y"
+	{int index = symbolTable.lookUp(yystack.l_mark[0].idName);
+		fprintf(f_asm, "lwi $r0, [$sp+%d]", symbolTable.entries[index].offset*4);
+		fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+		stack_counter++;}
+break;
+#line 804 "y.tab.cpp"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

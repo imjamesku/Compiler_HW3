@@ -17,6 +17,7 @@ public:
 	void init();
 	int lookUp(std::string name);
 	int install(std::string name);
+	int install(std::string name, int offset, int scope);
 	void pop(int scope);
 	int findAvailable();
 };

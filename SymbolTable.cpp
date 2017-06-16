@@ -11,6 +11,15 @@ int SymbolTable::install(std::string name){
 	int index = findAvailable();
 	entries[index].name = name;
 	entries[index].available = 0;
+	return index;
+}
+int SymbolTable::install(std::string name, int offset, int scope){
+	int index = findAvailable();
+	entries[index].name = name;
+	entries[index].available = 0;
+	entries[index].offset = offset;
+	entries[index].scope = scope;
+	return index;
 }
 int SymbolTable::lookUp(std::string name){
 	for(int i=0; i<MAX_TABLE_SIZE; ++i){
@@ -32,4 +41,5 @@ int SymbolTable::findAvailable(){
 			return i;
 		}
 	}
+	return -1;
 }

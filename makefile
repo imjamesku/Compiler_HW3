@@ -1,5 +1,5 @@
-parser: lex.yy.cpp y.tab.cpp
-	g++ -o parser lex.yy.cpp y.tab.cpp SymbolTable.cpp -lfl
+codegen: lex.yy.cpp y.tab.cpp
+	g++ -o codegen lex.yy.cpp y.tab.cpp SymbolTable.cpp -lfl
 scanner: lex.yy.cpp
 	gcc -o scanner lex.yy.cpp -lfl
 lex.yy.cpp: scanner.l
