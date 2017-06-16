@@ -387,8 +387,23 @@ extern YYSTYPE yyval;
 		printf("#id:%s\n", yytext);
 	strcpy(line_buf_ptr, yytext);
 	line_buf_ptr += strlen(yytext);
-	strcpy(yylval.idName, yytext);
-	return ID;
+	
+	if(strcmp(yytext, "digitalWrite")==0){
+		return DIGITAL_WRITE;
+	}
+	if(strcmp(yytext, "delay")==0){
+		return DELAY;
+	}
+	if(strcmp(yytext, "HIGH")==0){
+		return HIGH;
+	}
+	if(strcmp(yytext, "LOW")==0){
+		return LOW;
+	}
+	else{
+		strcpy(yylval.idName, yytext);
+		return ID;
+	}
 }
 #error
 .	{

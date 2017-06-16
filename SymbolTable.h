@@ -11,7 +11,7 @@ public:
 };
 class SymbolTable{
 public:
-	SymbolTable(){}
+	SymbolTable();
 	~SymbolTable(){}
 	Entry entries[MAX_TABLE_SIZE];
 	void init();

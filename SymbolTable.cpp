@@ -7,6 +7,9 @@ void SymbolTable::init(){
 		entries[i].offset = 0;
 	}
 }
+SymbolTable::SymbolTable(){
+	init();
+}
 int SymbolTable::install(std::string name){
 	int index = findAvailable();
 	entries[index].name = name;

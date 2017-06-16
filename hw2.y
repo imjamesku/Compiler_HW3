@@ -9,6 +9,7 @@
 %token KEY_FOR KEY_WHILE KEY_DO KEY_IF KEY_ELSE KEY_SWITCH KEY_RETURN KEY_BREAK KEY_CONTINUE KEY_CONST KEY_STRUCT KEY_CASE KEY_DEFAULT
 %token <idName> ID
 %token OP_INCREMENT OP_DECREMENT OP_CMP OP_LAND OP_LOR
+%token DIGITAL_WRITE DELAY HIGH LOW
 
 %left OP_LOR
 %left OP_LAND
@@ -39,7 +40,7 @@
 	int error_occurred = 0;
 	int stack_counter = 0;
 	int scope = 0;
-	FILE* f_asm;
+	FILE* f_asm = fopen("assembly", "w");
 %}
 
 %%
@@ -109,6 +110,18 @@ statement: ID '=' expression	{int index = symbolTable.lookUp($1);
 	| KEY_RETURN expression
 	| ID OP_INCREMENT
 	| ID OP_DECREMENT
+	| DIGITAL_WRITE '(' INTEGER ',' HIGH ')'	{fprintf(f_asm, "movi $r0, 13\n");
+							fprintf(f_asm, "movi $r1, 1\n");
+							fprintf(f_asm, "bal digitalWrite\n");
+							}
+	| DIGITAL_WRITE '(' INTEGER ',' LOW ')'		{fprintf(f_asm, "movi $r0, 13\n");
+							fprintf(f_asm, "movi $r1, 0\n");
+							fprintf(f_asm, "bal digitalWrite\n");
+							}
+
+	| DELAY '(' expression ')'			{fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+							fprintf(f_asm, "bal delay\n");
+							}
 	;
 arr_indices: '[' expression ']'
 	| '[' expression ']' arr_indices
@@ -139,7 +152,8 @@ identifiers: identifier
 	;
 
 identifier:
-	ID {int index = symbolTable.install($1, stack_counter, scope); stack_counter++;}
+	ID	{int index = symbolTable.install($1, stack_counter, scope);
+		stack_counter++;}
 	|ID '=' expression {	//fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
 			//	stack_counter--;
 				symbolTable.install($1, stack_counter-1, scope); stack_counter++; }
@@ -254,5 +268,6 @@ int main(void){
 	}
 	if(error_occurred == 0)
 		printf("No syntax error\n");
+	fclose(f_asm);
 	return 0;
 }
