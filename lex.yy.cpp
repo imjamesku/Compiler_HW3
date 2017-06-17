@@ -1411,18 +1411,30 @@ YY_RULE_SETUP
 		return OP_INCREMENT;
 	else if(strcmp(yytext, "--") == 0)
 		return OP_DECREMENT;
-	else if(strcmp(yytext, "<") == 0)
+	else if(strcmp(yytext, "<") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "<=") == 0)
+	}
+	else if(strcmp(yytext, "<=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, ">") == 0)
+	}
+	else if(strcmp(yytext, ">") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, ">=") == 0)
+	}
+	else if(strcmp(yytext, ">=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "==") == 0)
+	}
+	else if(strcmp(yytext, "==") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "!=") == 0)
+	}
+	else if(strcmp(yytext, "!=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
+	}
 	else if(strcmp(yytext, "&&") == 0)
 		return OP_LAND;
 	else if(strcmp(yytext, "||") == 0)
@@ -1438,7 +1450,7 @@ case 28:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 358 "scanner.l"
+#line 370 "scanner.l"
 {
 /*doubles*/
 	if(token_on)
@@ -1454,7 +1466,7 @@ case 29:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 366 "scanner.l"
+#line 378 "scanner.l"
 {
 /*Integers*/
 	if(token_on)
@@ -1471,7 +1483,7 @@ case 30:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 376 "scanner.l"
+#line 388 "scanner.l"
 {
 /*scientific notation*/
 	if(token_on)
@@ -1487,7 +1499,7 @@ case 31:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 384 "scanner.l"
+#line 396 "scanner.l"
 {
 /*identifiers*/
 	if(token_on)
@@ -1515,12 +1527,12 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 408 "scanner.l"
+#line 420 "scanner.l"
 
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 409 "scanner.l"
+#line 421 "scanner.l"
 {
 	fprintf(stderr, "Error at line %d: %s\n", num_lines, yytext);
 	exit(1);
@@ -1528,10 +1540,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 413 "scanner.l"
+#line 425 "scanner.l"
 ECHO;
 	YY_BREAK
-#line 1535 "lex.yy.cpp"
+#line 1547 "lex.yy.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(comment):
 case YY_STATE_EOF(string):
@@ -2533,7 +2545,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 413 "scanner.l"
+#line 425 "scanner.l"
 
 
 /*int main(int argc, char* argv[]){

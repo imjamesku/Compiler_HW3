@@ -20,9 +20,9 @@
 #define KEY_CASE 276
 #define KEY_DEFAULT 277
 #define ID 278
-#define OP_INCREMENT 279
-#define OP_DECREMENT 280
-#define OP_CMP 281
+#define OP_CMP 279
+#define OP_INCREMENT 280
+#define OP_DECREMENT 281
 #define OP_LAND 282
 #define OP_LOR 283
 #define DIGITAL_WRITE 284
@@ -40,6 +40,7 @@
 typedef union{
 	int intVal;
 	char idName[32];
+	char cmpStr[3];
 } YYSTYPE;
 #endif /* !YYSTYPE_IS_DECLARED */
 extern YYSTYPE yylval;

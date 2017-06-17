@@ -335,18 +335,30 @@ extern YYSTYPE yyval;
 		return OP_INCREMENT;
 	else if(strcmp(yytext, "--") == 0)
 		return OP_DECREMENT;
-	else if(strcmp(yytext, "<") == 0)
+	else if(strcmp(yytext, "<") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "<=") == 0)
+	}
+	else if(strcmp(yytext, "<=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, ">") == 0)
+	}
+	else if(strcmp(yytext, ">") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, ">=") == 0)
+	}
+	else if(strcmp(yytext, ">=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "==") == 0)
+	}
+	else if(strcmp(yytext, "==") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
-	else if(strcmp(yytext, "!=") == 0)
+	}
+	else if(strcmp(yytext, "!=") == 0){
+		strcpy(yylval.cmpStr, yytext);
 		return OP_CMP;
+	}
 	else if(strcmp(yytext, "&&") == 0)
 		return OP_LAND;
 	else if(strcmp(yytext, "||") == 0)
