@@ -46,9 +46,10 @@ typedef union{
 	int functionDefinitionExists = 0;
 	int error_occurred = 0;
 	int stack_counter = 0;
+	int label_counter = 0;
 	int scope = 0;
 	FILE* f_asm = fopen("assembly", "w");
-#line 51 "y.tab.cpp"
+#line 52 "y.tab.cpp"
 
 /* compatibility with bison */
 #ifdef YYPARSE_PARAM
@@ -508,7 +509,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 255 "hw2.y"
+#line 366 "hw2.y"
 
 void yyerror(const char* msg){
 	fprintf( stderr, "*** Error at line %d: %s\n", num_lines, line_buf );
@@ -533,7 +534,7 @@ int main(void){
 	fclose(f_asm);
 	return 0;
 }
-#line 535 "y.tab.cpp"
+#line 536 "y.tab.cpp"
 
 #if YYDEBUG
 #include <stdio.h>		/* needed for printf */
@@ -736,11 +737,11 @@ yyreduce:
     switch (yyn)
     {
 case 2:
-#line 51 "hw2.y"
+#line 52 "hw2.y"
 	{functionDefinitionExists = 1;}
 break;
 case 35:
-#line 102 "hw2.y"
+#line 103 "hw2.y"
 	{int index = symbolTable.lookUp(yystack.l_mark[-2].idName);
 				int offset = symbolTable.entries[index].offset;
 				fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -749,40 +750,162 @@ case 35:
 				}
 break;
 case 44:
-#line 116 "hw2.y"
+#line 117 "hw2.y"
 	{fprintf(f_asm, "movi $r0, 13\n");
 							fprintf(f_asm, "movi $r1, 1\n");
 							fprintf(f_asm, "bal digitalWrite\n");
 							}
 break;
 case 45:
-#line 120 "hw2.y"
+#line 121 "hw2.y"
 	{fprintf(f_asm, "movi $r0, 13\n");
 							fprintf(f_asm, "movi $r1, 0\n");
 							fprintf(f_asm, "bal digitalWrite\n");
 							}
 break;
 case 46:
-#line 125 "hw2.y"
+#line 126 "hw2.y"
 	{fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 							stack_counter--;
 							fprintf(f_asm, "bal delay\n");
 							}
 break;
 case 64:
-#line 159 "hw2.y"
+#line 160 "hw2.y"
 	{int index = symbolTable.install(yystack.l_mark[0].idName, stack_counter, scope);
 		stack_counter++;}
 break;
 case 65:
-#line 161 "hw2.y"
+#line 162 "hw2.y"
 	{/*fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);*/
 			/*	stack_counter--;*/
 				symbolTable.install(yystack.l_mark[-2].idName, stack_counter-1, scope);
 				 }
 break;
+case 76:
+#line 186 "hw2.y"
+	{
+				
+						int L5 = label_counter;
+						label_counter++;
+						int L6 = label_counter;
+						label_counter++;
+						int L7 = label_counter;
+						label_counter++;
+						
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "bnez\t$r0, .L%d\n", L5);
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L6);
+						fprintf(f_asm, ".L%d:\n", L5);
+						fprintf(f_asm, "movi\t$r0, 1\n");
+						fprintf(f_asm, "j\t.L%d\n", L7);
+						fprintf(f_asm, ".L%d:\n", L6);
+						fprintf(f_asm, "movi\t$r0, 0\n");
+						fprintf(f_asm, ".L%d:\n", L7);
+						fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+						stack_counter++;
+					}
+break;
+case 77:
+#line 210 "hw2.y"
+	{
+						int L3 = label_counter;
+						label_counter++;
+						int L4 = label_counter;
+						
+						label_counter++;
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L3);
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L3);
+						fprintf(f_asm, "movi\t$r0, 1\n");
+						fprintf(f_asm, "j\t.L%d\n", L4);
+						fprintf(f_asm, ".L%d:\n", L3);
+						fprintf(f_asm, "movi\t$r0, 0\n");
+						fprintf(f_asm, ".L%d:\n", L4);
+						fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+						stack_counter++;
+
+					}
+break;
+case 78:
+#line 231 "hw2.y"
+	{
+						std::string op = yystack.l_mark[-1].cmpStr;
+						if(op == "<"){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "<="){
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "xori $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == ">"){
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == ">="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "xori $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "=="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "xor $r0, $r1, $r0\n");
+							fprintf(f_asm, "slti $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "!="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "xor $r0, $r1, $r0\n");
+							fprintf(f_asm, "movi\t$r1, 0\n");
+							fprintf(f_asm, "slt $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+					}
+break;
 case 80:
-#line 189 "hw2.y"
+#line 300 "hw2.y"
 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
 					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -793,7 +916,7 @@ case 80:
 					}
 break;
 case 81:
-#line 197 "hw2.y"
+#line 308 "hw2.y"
 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
 					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -804,7 +927,7 @@ case 81:
 					}
 break;
 case 82:
-#line 206 "hw2.y"
+#line 317 "hw2.y"
 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
 					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -815,7 +938,7 @@ case 82:
 					}
 break;
 case 83:
-#line 215 "hw2.y"
+#line 326 "hw2.y"
 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
 					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -826,7 +949,7 @@ case 83:
 					}
 break;
 case 84:
-#line 224 "hw2.y"
+#line 335 "hw2.y"
 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
 					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
@@ -837,19 +960,19 @@ case 84:
 					}
 break;
 case 87:
-#line 235 "hw2.y"
+#line 346 "hw2.y"
 	{fprintf(f_asm, "movi $r0, %d\n", yystack.l_mark[0].intVal);
 			fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 			stack_counter++;}
 break;
 case 91:
-#line 241 "hw2.y"
+#line 352 "hw2.y"
 	{int index = symbolTable.lookUp(yystack.l_mark[0].idName);
 		fprintf(f_asm, "lwi $r0, [$sp+%d]\n", symbolTable.entries[index].offset*4);
 		fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 		stack_counter++;}
 break;
-#line 851 "y.tab.cpp"
+#line 974 "y.tab.cpp"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;

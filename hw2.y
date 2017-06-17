@@ -41,6 +41,7 @@
 	int functionDefinitionExists = 0;
 	int error_occurred = 0;
 	int stack_counter = 0;
+	int label_counter = 0;
 	int scope = 0;
 	FILE* f_asm = fopen("assembly", "w");
 %}
@@ -182,9 +183,119 @@ expressions: expression
 	|expression ',' expressions
 	;
 
-expression: expression OP_LOR expression
-	|expression OP_LAND expression
-	|expression OP_CMP expression
+expression: expression OP_LOR expression{
+				
+						int L5 = label_counter;
+						label_counter++;
+						int L6 = label_counter;
+						label_counter++;
+						int L7 = label_counter;
+						label_counter++;
+						
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "bnez\t$r0, .L%d\n", L5);
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L6);
+						fprintf(f_asm, ".L%d:\n", L5);
+						fprintf(f_asm, "movi\t$r0, 1\n");
+						fprintf(f_asm, "j\t.L%d\n", L7);
+						fprintf(f_asm, ".L%d:\n", L6);
+						fprintf(f_asm, "movi\t$r0, 0\n");
+						fprintf(f_asm, ".L%d:\n", L7);
+						fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+						stack_counter++;
+					}
+	|expression OP_LAND expression	{
+						int L3 = label_counter;
+						label_counter++;
+						int L4 = label_counter;
+						
+						label_counter++;
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L3);
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz\t$r0, .L%d\n", L3);
+						fprintf(f_asm, "movi\t$r0, 1\n");
+						fprintf(f_asm, "j\t.L%d\n", L4);
+						fprintf(f_asm, ".L%d:\n", L3);
+						fprintf(f_asm, "movi\t$r0, 0\n");
+						fprintf(f_asm, ".L%d:\n", L4);
+						fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+						stack_counter++;
+
+					}
+	|expression OP_CMP expression	{
+						std::string op = $2;
+						if(op == "<"){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "<="){
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "xori $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == ">"){
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == ">="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "slts $r0, $r1, $r0\n");
+							fprintf(f_asm, "xori $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "=="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "xor $r0, $r1, $r0\n");
+							fprintf(f_asm, "slti $r0, $r0, 1\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+						else if(op == "!="){
+							fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
+							fprintf(f_asm, "xor $r0, $r1, $r0\n");
+							fprintf(f_asm, "movi\t$r1, 0\n");
+							fprintf(f_asm, "slt $r0, $r1, $r0\n");
+							fprintf(f_asm, "zeb $r0, $r0\n");
+							fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
+							stack_counter++;
+						}
+					}
 	|'!' expression
 	|expression '+' expression 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
