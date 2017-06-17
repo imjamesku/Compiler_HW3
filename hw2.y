@@ -99,8 +99,9 @@ allKindsOfStatements: statement ';'
 
 statement: ID '=' expression	{int index = symbolTable.lookUp($1);
 				int offset = symbolTable.entries[index].offset;
-				fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
-				fprintf(f_asm, "swi $r0, [$sp+%d]", (offset)*4);
+				fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+				stack_counter--;
+				fprintf(f_asm, "swi $r0, [$sp+%d]\n", (offset)*4);
 				}
 	| ID arr_indices '=' expression
 	| ID '(' expressions  ')'
@@ -119,7 +120,8 @@ statement: ID '=' expression	{int index = symbolTable.lookUp($1);
 							fprintf(f_asm, "bal digitalWrite\n");
 							}
 
-	| DELAY '(' expression ')'			{fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+	| DELAY '(' expression ')'			{fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
 							fprintf(f_asm, "bal delay\n");
 							}
 	;
@@ -154,9 +156,10 @@ identifiers: identifier
 identifier:
 	ID	{int index = symbolTable.install($1, stack_counter, scope);
 		stack_counter++;}
-	|ID '=' expression {	//fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+	|ID '=' expression	 {//fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
 			//	stack_counter--;
-				symbolTable.install($1, stack_counter-1, scope); stack_counter++; }
+				symbolTable.install($1, stack_counter-1, scope);
+				 }
 	|ID arr_brackets
 	|ID arr_brackets '=' '{' expressions '}'
 	|ID arr_brackets '=' '{' '}'
@@ -181,61 +184,61 @@ expression: expression OP_LOR expression
 	|expression OP_LAND expression
 	|expression OP_CMP expression
 	|'!' expression
-	|expression '+' expression 	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+	|expression '+' expression 	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "add $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "add $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
-	|expression '-' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+	|expression '-' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "sub $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "sub $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 	
-	|expression '*' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+	|expression '*' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "mul $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 
-	|expression '/' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+	|expression '/' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 
-	|expression '%' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+	|expression '%' expression	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 
 	|ID OP_INCREMENT
 	|ID OP_DECREMENT
 	|INTEGER	{fprintf(f_asm, "movi $r0, %d\n", $1);
-			fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+			fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 			stack_counter++;}
 	|DOUBLE
 	|SCI_NOTATION
 	|CHAR
 	|ID	{int index = symbolTable.lookUp($1);
-		fprintf(f_asm, "lwi $r0, [$sp+%d]", symbolTable.entries[index].offset*4);
-		fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+		fprintf(f_asm, "lwi $r0, [$sp+%d]\n", symbolTable.entries[index].offset*4);
+		fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 		stack_counter++;}
 	|STRING
 	|CONSTANT

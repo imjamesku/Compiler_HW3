@@ -1,0 +1,20 @@
+movi $r0, 3000
+swi $r0, [$sp+0]
+movi $r0, 7000
+swi $r0, [$sp+4]
+movi $r0, 13
+movi $r1, 1
+bal digitalWrite
+lwi $r0, [$sp+0]
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+bal delay
+movi $r0, 13
+movi $r1, 0
+bal digitalWrite
+lwi $r0, [$sp+4]
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+bal delay
+movi $r0, 0
+swi $r0, [$sp+8]

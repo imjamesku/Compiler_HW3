@@ -499,7 +499,7 @@ typedef struct {
 } YYSTACKDATA;
 /* variables for the parser stack */
 static YYSTACKDATA yystack;
-#line 250 "hw2.y"
+#line 253 "hw2.y"
 
 void yyerror(const char* msg){
 	fprintf( stderr, "*** Error at line %d: %s\n", num_lines, line_buf );
@@ -734,110 +734,113 @@ case 35:
 #line 100 "hw2.y"
 	{int index = symbolTable.lookUp(yystack.l_mark[-2].idName);
 				int offset = symbolTable.entries[index].offset;
-				fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
-				fprintf(f_asm, "swi $r0, [$sp+%d]", (offset)*4);
+				fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+				stack_counter--;
+				fprintf(f_asm, "swi $r0, [$sp+%d]\n", (offset)*4);
 				}
 break;
 case 44:
-#line 113 "hw2.y"
+#line 114 "hw2.y"
 	{fprintf(f_asm, "movi $r0, 13\n");
 							fprintf(f_asm, "movi $r1, 1\n");
 							fprintf(f_asm, "bal digitalWrite\n");
 							}
 break;
 case 45:
-#line 117 "hw2.y"
+#line 118 "hw2.y"
 	{fprintf(f_asm, "movi $r0, 13\n");
 							fprintf(f_asm, "movi $r1, 0\n");
 							fprintf(f_asm, "bal digitalWrite\n");
 							}
 break;
 case 46:
-#line 122 "hw2.y"
-	{fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+#line 123 "hw2.y"
+	{fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+							stack_counter--;
 							fprintf(f_asm, "bal delay\n");
 							}
 break;
 case 64:
-#line 155 "hw2.y"
+#line 157 "hw2.y"
 	{int index = symbolTable.install(yystack.l_mark[0].idName, stack_counter, scope);
 		stack_counter++;}
 break;
 case 65:
-#line 157 "hw2.y"
-	{	/*fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);*/
+#line 159 "hw2.y"
+	{/*fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);*/
 			/*	stack_counter--;*/
-				symbolTable.install(yystack.l_mark[-2].idName, stack_counter-1, scope); stack_counter++; }
+				symbolTable.install(yystack.l_mark[-2].idName, stack_counter-1, scope);
+				 }
 break;
 case 80:
-#line 184 "hw2.y"
-	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+#line 187 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "add $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "add $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 break;
 case 81:
-#line 192 "hw2.y"
-	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+#line 195 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "sub $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "sub $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 break;
 case 82:
-#line 201 "hw2.y"
-	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+#line 204 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "mul $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 break;
 case 83:
-#line 210 "hw2.y"
-	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+#line 213 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "divsr $r0, $r1, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 break;
 case 84:
-#line 219 "hw2.y"
-	{fprintf(f_asm, "lwi $r1, [$sp+%d]", (stack_counter-1)*4);
+#line 222 "hw2.y"
+	{fprintf(f_asm, "lwi $r1, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "lwi $r0, [$sp+%d]", (stack_counter-1)*4);
+					fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
 					stack_counter--;
-					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1");
-					fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+					fprintf(f_asm, "divsr $r1, $r0, $r0, $r1\n");
+					fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 					stack_counter++;
 					}
 break;
 case 87:
-#line 230 "hw2.y"
+#line 233 "hw2.y"
 	{fprintf(f_asm, "movi $r0, %d\n", yystack.l_mark[0].intVal);
-			fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+			fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 			stack_counter++;}
 break;
 case 91:
-#line 236 "hw2.y"
+#line 239 "hw2.y"
 	{int index = symbolTable.lookUp(yystack.l_mark[0].idName);
-		fprintf(f_asm, "lwi $r0, [$sp+%d]", symbolTable.entries[index].offset*4);
-		fprintf(f_asm, "swi $r0, [$sp+%d]", stack_counter*4);
+		fprintf(f_asm, "lwi $r0, [$sp+%d]\n", symbolTable.entries[index].offset*4);
+		fprintf(f_asm, "swi $r0, [$sp+%d]\n", stack_counter*4);
 		stack_counter++;}
 break;
-#line 839 "y.tab.cpp"
+#line 842 "y.tab.cpp"
     }
     yystack.s_mark -= yym;
     yystate = *yystack.s_mark;
