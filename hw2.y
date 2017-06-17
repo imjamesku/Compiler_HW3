@@ -43,6 +43,7 @@
 	int stack_counter = 0;
 	int label_counter = 0;
 	int scope = 0;
+	int if_L0 = 0, if_L_else_end = 0;
 	FILE* f_asm = fopen("assembly", "w");
 %}
 
@@ -52,8 +53,25 @@ program: declaration ';' program
 	|function_declaration '{' compound_statement '}' program {functionDefinitionExists = 1;}
 	|
 	;
-if_else_statement: KEY_IF '(' expression ')' '{' compound_statement '}' KEY_ELSE '{' compound_statement '}'
-	| KEY_IF '(' expression ')' '{' compound_statement '}'
+if_else_statement: if_condition_true KEY_ELSE '{' compound_statement '}'{
+										fprintf(f_asm, ".L%d:\n", if_L_else_end);
+									}
+	| if_condition '{' compound_statement '}'	{
+								fprintf(f_asm, ".L%d:\n", if_L0);
+							}
+	;
+if_condition: KEY_IF '(' expression ')'	{
+						if_L0 = label_counter++;
+						if_L_else_end = label_counter++;
+						fprintf(f_asm, "lwi $r0, [$sp+%d]\n", (stack_counter-1)*4);
+						stack_counter--;
+						fprintf(f_asm, "beqz $r0, L%d\n", if_L0);
+					}
+	;
+if_condition_true: if_condition '{' compound_statement '}'	{
+									fprintf(f_asm, "j\t.L%d\n", if_L_else_end);
+									fprintf(f_asm, ".L%d:\n", if_L0);
+								}
 	;
 for_statement: KEY_FOR '(' optionalExpression ';' optionalExpression ';' optionalExpression ')' '{' compound_statement '}'
 	;

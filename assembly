@@ -1,21 +1,32 @@
-movi $r0, 13
+movi $r0, 3000
 swi $r0, [$sp+0]
-lwi $r0, [$sp+0]
+movi $r0, 7000
 swi $r0, [$sp+4]
-movi $r0, 3000
+lwi $r0, [$sp+0]
 swi $r0, [$sp+8]
-movi $r0, 3000
+lwi $r0, [$sp+4]
 swi $r0, [$sp+12]
-movi $r0, 1000
-swi $r0, [$sp+16]
+lwi $r1, [$sp+12]
 lwi $r0, [$sp+8]
-swi $r0, [$sp+20]
-lwi $r0, [$sp+12]
-swi $r0, [$sp+24]
-lwi $r1, [$sp+24]
-lwi $r0, [$sp+20]
 slts $r0, $r1, $r0
 zeb $r0, $r0
-swi $r0, [$sp+20]
-lwi $r0, [$sp+20]
-swi $r0, [$sp+16]
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+beqz $r0, L0
+movi $r0, 2
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+swi $r0, [$sp+0]
+j	.L1
+.L0:
+movi $r0, 5000
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+swi $r0, [$sp+0]
+.L1:
+movi $r0, 999999
+swi $r0, [$sp+8]
+lwi $r0, [$sp+8]
+swi $r0, [$sp+4]
+movi $r0, 0
+swi $r0, [$sp+8]
